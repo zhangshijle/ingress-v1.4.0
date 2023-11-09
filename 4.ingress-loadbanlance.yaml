@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/version: 1.4.0
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+  annotations: #可选的ALB相关配置，全部可选配参考京东云文档：https://docs.jdcloud.com/cn/jcs-for-kubernetes/deploy-service-new
+    service.beta.kubernetes.io/jdcloud-load-balancer-spec: |
+      version: "v1"
+      loadBalancerType: alb
+      internal: false
+      elasticIp:       # 默认创建按配置收费
+        bandwidthMbps: 2 # 默认5M带宽，后期在京东云控制台手动修改公网IP带宽、会触发ALB恢复基于yaml文件创建时的初始配置参数
+      listeners: #监听配置,需要和spec字段指定的端口数量保证一致
+        - protocol: "tcp"
+          connectionIdleTimeSeconds: 1800 #连接超时时间，alb/nlb有效
+          backend:
+            proxyProtocol: false
+        - protocol: "tcp"
+          connectionIdleTimeSeconds: 1800
+          backend:
+            proxyProtocol: false
+spec:
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - appProtocol: http
+    name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  - appProtocol: https
+    name: https
+    port: 443
+    protocol: TCP
+    targetPort: https
+  selector:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+  #type: NodePort
+  type: LoadBalancer #用于公有云环境，通过SLB暴露ingress服务
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/version: 1.4.0
+  name: ingress-nginx-controller-admission
+  namespace: ingress-nginx
+spec:
+  ports:
+  - appProtocol: https
+    name: https-webhook
+    port: 443
+    targetPort: webhook
+  selector:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+  type: ClusterIP

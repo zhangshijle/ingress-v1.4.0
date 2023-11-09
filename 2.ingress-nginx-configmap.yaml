@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/component: controller
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/version: 1.4.0
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+data:
+  allow-snippet-annotations: "true"
+  log-format-upstream: '{"nginx_timestamp":"$time_iso8601","tcp_xff":"$proxy_protocol_addr","clientip":"$remote_addr","nginx_host":"$server_addr","host":"$http_host","request":"$request","url":"$request_uri","upstreamhost":"$upstream_addr","status":"$status","body_bytes_sent":"$body_bytes_sent","request_time":"$request_time","upstream_response_time":"$upstream_response_time","xff":"$http_x_forwarded_for","referer":"$http_referer","http_user_agent":"$http_user_agent","request_length":"$request_length","request_method":"$request_method"}'

@@ -1,0 +1,14 @@
+kind: Service  #service 类型
+apiVersion: v1
+metadata:
+  annotations:
+    prometheus.io/scrape: 'true'
+  name: sample-httpserver-service
+  namespace: myserver
+spec:
+  selector:
+    app: sample-httpserver
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 3000
